@@ -6,21 +6,40 @@
 package source;
 
 
+import java.awt.BasicStroke;
 import java.awt.Button;
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.scene.chart.NumberAxis;
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartFrame;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.data.xy.DefaultXYDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 
 /**
  *
@@ -28,10 +47,26 @@ import javax.swing.JOptionPane;
  */
 public class TicTacToePanel extends javax.swing.JPanel {
 
-    public int algoritmo;
-    static int jugada;
-       static int input;
-       static String finish;
+        public int algoritmo;
+        static int jugada;
+        static int input;
+        static String finish;
+       
+       // datos minimax
+    //   static double[] time;
+     //  static int[] states;
+     //  static double[] timeState;
+       ArrayList<Double> time = new ArrayList<Double>();
+        ArrayList<Double> states = new ArrayList<Double>();
+        ArrayList<Double> timeState = new ArrayList<Double>();
+              
+              //datos poda alpha-beta
+       //static double[] timeAlpha;
+       //static int[] statesAlpha;
+        //static double[] timeStateAlpha;
+               ArrayList<Double> timeAlpha = new ArrayList<Double>();
+        ArrayList<Double> statesAlpha = new ArrayList<Double>();
+        ArrayList<Double> timeStateAlpha = new ArrayList<Double>();
 
 
     /**
@@ -40,6 +75,7 @@ public class TicTacToePanel extends javax.swing.JPanel {
     public TicTacToePanel() {
         initComponents();
 
+btnTiempoEstados.setText("<html><p>Tiempo por</p><p>estados</p></html>");
     }
 
     /**
@@ -57,7 +93,11 @@ public class TicTacToePanel extends javax.swing.JPanel {
         jLabel2 = new javax.swing.JLabel();
         btnPlay = new javax.swing.JButton();
         btnClean = new javax.swing.JButton();
+        btnStadistics = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
+        btnTiempo = new javax.swing.JButton();
+        btnEstados = new javax.swing.JButton();
+        btnTiempoEstados = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
         btn1 = new javax.swing.JButton();
         btn2 = new javax.swing.JButton();
@@ -103,10 +143,19 @@ public class TicTacToePanel extends javax.swing.JPanel {
             }
         });
 
+        btnClean.setBackground(new java.awt.Color(255, 255, 255));
+        btnClean.setForeground(new java.awt.Color(102, 102, 102));
         btnClean.setText("Limpiar");
         btnClean.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnCleanActionPerformed(evt);
+            }
+        });
+
+        btnStadistics.setText("estadistica");
+        btnStadistics.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnStadisticsActionPerformed(evt);
             }
         });
 
@@ -117,43 +166,81 @@ public class TicTacToePanel extends javax.swing.JPanel {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(5, 5, 5)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel2))
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(btnPlay, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnClean, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addGap(6, 6, 6))
+                        .addComponent(btnPlay, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(5, 5, 5)
+                        .addComponent(jLabel2))
+                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnClean, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnStadistics, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(0, 8, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addComponent(jLabel2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnClean, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnPlay, javax.swing.GroupLayout.DEFAULT_SIZE, 39, Short.MAX_VALUE))
-                .addContainerGap())
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 8, Short.MAX_VALUE)
+                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(12, 12, 12))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                        .addComponent(btnStadistics, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(18, 18, 18)))
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnClean, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnPlay, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
 
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Estadisticas"));
+        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Comparar metodos"));
+
+        btnTiempo.setText("Tiempo");
+        btnTiempo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnTiempoActionPerformed(evt);
+            }
+        });
+
+        btnEstados.setText("Estados");
+        btnEstados.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEstadosActionPerformed(evt);
+            }
+        });
+
+        btnTiempoEstados.setText("jButton3");
+        btnTiempoEstados.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnTiempoEstadosActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 255, Short.MAX_VALUE)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(btnTiempo, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnEstados, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnTiempoEstados)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGap(16, 16, 16)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnTiempo, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnEstados, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnTiempoEstados, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -161,20 +248,18 @@ public class TicTacToePanel extends javax.swing.JPanel {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(16, Short.MAX_VALUE))
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
 
         jPanel4.setBackground(new java.awt.Color(255, 255, 255));
@@ -314,14 +399,14 @@ public class TicTacToePanel extends javax.swing.JPanel {
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 270, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 247, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 288, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 294, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -345,7 +430,7 @@ public class TicTacToePanel extends javax.swing.JPanel {
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel6Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 285, Short.MAX_VALUE)
+                .addComponent(jScrollPane2)
                 .addContainerGap())
         );
 
@@ -355,29 +440,28 @@ public class TicTacToePanel extends javax.swing.JPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, 511, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
+                    .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(7, 7, 7)
-                        .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addContainerGap())
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, 521, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(819, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -402,8 +486,7 @@ public class TicTacToePanel extends javax.swing.JPanel {
             System.out.println("Ocurrio un error al escojer algoritmo");
         }
         juego();
-      
-
+      clear();
     }//GEN-LAST:event_btnPlayActionPerformed
 
     private void btn1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn1ActionPerformed
@@ -449,13 +532,159 @@ public class TicTacToePanel extends javax.swing.JPanel {
     private void btnCleanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCleanActionPerformed
         // TODO add your handling code here:
         clear();
+        time.clear();
+        timeAlpha.clear();
+        timeState.clear();
+        timeStateAlpha.clear();
+        states.clear();
+        statesAlpha.clear();
+        txtMinimax.setText("");
+        txtPoda.setText("");
     }//GEN-LAST:event_btnCleanActionPerformed
+
+    private void btnTiempoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTiempoActionPerformed
+        // TODO add your handling code here:
+        if (!time.isEmpty()) {
+            if (!timeAlpha.isEmpty()) {
+                 XYSeries series = new XYSeries("Minimax");
+  XYSeries series1 = new XYSeries("Poda Alpha-Beta");
+
+  
+        for (int i = 0; i < time.size(); i++) {
+            series.add(i+1, time.get(i));
+
+        }
+        
+                for (int i = 0; i < timeAlpha.size(); i++) {
+            series1.add(i+1, timeAlpha.get(i));
+        }
+    XYSeriesCollection dataset = new XYSeriesCollection();
+        dataset.addSeries(series);
+         dataset.addSeries(series1);
+         
+              JFreeChart chart = ChartFactory.createXYLineChart(
+                "Tiempo de ejecucion turno", // Título
+                "Turno", // Etiqueta Coordenada X
+                "tiempo(Microsec)", // Etiqueta Coordenada Y
+                dataset, // Datos
+                PlotOrientation.VERTICAL,
+                true, // Muestra la leyenda de los productos (Producto A)
+                false,
+                false
+        );
+              
+        
+                ChartFrame frame = new ChartFrame("Tiempo de ejecucion del turno ordenador", chart);
+        frame.pack();
+        frame.setVisible(true);
+ 
+            }else{
+                        JOptionPane.showMessageDialog(this, "Juega con el metodo Poda Alfa-Beta \n para crear comparacion", "No es posible comparar", JOptionPane.ERROR_MESSAGE);
+            }
+        } else{
+                              JOptionPane.showMessageDialog(this, "Juega con el metodo minimax \n para crear comparacion", "No es posible comparar", JOptionPane.ERROR_MESSAGE);
+
+        }
+
+    }//GEN-LAST:event_btnTiempoActionPerformed
+
+    private void btnEstadosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEstadosActionPerformed
+        // TODO add your handling code here:
+                if (!states.isEmpty()) {
+            if (!statesAlpha.isEmpty()) {
+                 XYSeries series = new XYSeries("Minimax");
+  XYSeries series1 = new XYSeries("Poda Alpha-Beta");
+
+  
+        for (int i = 0; i < states.size(); i++) {
+            series.add(i+1, states.get(i));
+
+        }
+        
+                for (int i = 0; i < statesAlpha.size(); i++) {
+            series1.add(i+1, statesAlpha.get(i));
+        }
+    XYSeriesCollection dataset = new XYSeriesCollection();
+        dataset.addSeries(series);
+         dataset.addSeries(series1);
+         
+              JFreeChart chart = ChartFactory.createXYLineChart(
+                "Estados", // Título
+                "Turno", // Etiqueta Coordenada X
+                "Num. de estados", // Etiqueta Coordenada Y
+                dataset, // Datos
+                PlotOrientation.VERTICAL,
+                true, // Muestra la leyenda de los productos (Producto A)
+                false,
+                false
+        );
+              
+        
+                ChartFrame frame = new ChartFrame("Numero de estados del turno ordenador", chart);
+        frame.pack();
+        frame.setVisible(true);
+ 
+            }else{
+                        JOptionPane.showMessageDialog(this, "Juega con el metodo Poda Alfa-Beta \n para crear comparacion", "No es posible comparar", JOptionPane.ERROR_MESSAGE);
+            }
+        } else{
+                              JOptionPane.showMessageDialog(this, "Juega con el metodo minimax \n para crear comparacion", "No es posible comparar", JOptionPane.ERROR_MESSAGE);
+
+        }
+    }//GEN-LAST:event_btnEstadosActionPerformed
+
+    private void btnTiempoEstadosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTiempoEstadosActionPerformed
+        // TODO add your handling code here:
+                        if (!timeState.isEmpty()) {
+            if (!timeStateAlpha.isEmpty()) {
+                 XYSeries series = new XYSeries("Minimax");
+  XYSeries series1 = new XYSeries("Poda Alpha-Beta");
+
+  
+        for (int i = 0; i < timeState.size(); i++) {
+            series.add(i+1, timeState.get(i));
+        }
+        
+               for (int i = 0; i < timeStateAlpha.size(); i++) {
+            series1.add(i+1, timeStateAlpha.get(i));
+        }
+    XYSeriesCollection dataset = new XYSeriesCollection();
+        dataset.addSeries(series);
+         dataset.addSeries(series1);
+         
+              JFreeChart chart = ChartFactory.createXYLineChart(
+                "Tiempo por estado de ejecucion turno", // Título
+                "Turno", // Etiqueta Coordenada X
+                "tiempo(Microsec)", // Etiqueta Coordenada Y
+                dataset, // Datos
+                PlotOrientation.VERTICAL,
+                true, // Muestra la leyenda de los productos (Producto A)
+                false,
+                false
+        );
+              
+        
+                ChartFrame frame = new ChartFrame("Tiempo de ejecucion del turno ordenador", chart);
+        frame.pack();
+        frame.setVisible(true);
+ 
+            }else{
+                        JOptionPane.showMessageDialog(this, "Juega con el metodo Poda Alfa-Beta \n para crear comparacion", "No es posible comparar", JOptionPane.ERROR_MESSAGE);
+            }
+        } else{
+                              JOptionPane.showMessageDialog(this, "Juega con el metodo minimax \n para crear comparacion", "No es posible comparar", JOptionPane.ERROR_MESSAGE);
+
+        }
+    }//GEN-LAST:event_btnTiempoEstadosActionPerformed
+
+    private void btnStadisticsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStadisticsActionPerformed
+        // TODO add your handling code here:
+         JOptionPane.showMessageDialog(this, "Juegos ganados: "+gPlayer+ "\nJuegos Empatados: "+empate+ "\n juegos perdidos: "+gComputer, "Estadisticas", JOptionPane.INFORMATION_MESSAGE);
+    }//GEN-LAST:event_btnStadisticsActionPerformed
 
 
     public void juego(){
                 
-
-
         System.out.println("You are Player 1!");
         System.out.println("Current board:");
         source.Map.printBoard(source.Map.map);
@@ -484,6 +713,18 @@ public class TicTacToePanel extends javax.swing.JPanel {
                 long start = System.nanoTime();
                 MiniMaxSearch.miniMax(1);
                 long end = System.nanoTime() - start;
+                
+                double time = 0;
+               double statetime = 0; 
+               double states = 0;
+               states = source.Map.visitedStates;
+               time =  (end / 1_000d);
+              statetime = ((end / 1_000d) / source.Map.visitedStates);
+
+              this.time.add(i, time);
+              this.states.add(i,states);
+              timeState.add(i, statetime);
+                
                                String textMinimax ="Posicion movimiento: "+ (source.Map.returnMove + 1) + "\n";
                   textMinimax = textMinimax +"Tiempo:  microsec = " +  end / 1_000d+"\n" ;
                     textMinimax = textMinimax +"estados visitados: "+ source.Map.visitedStates+ "\n";
@@ -498,7 +739,7 @@ public class TicTacToePanel extends javax.swing.JPanel {
                 System.out.println("Current board:");
                 source.Map.printBoard(source.Map.map);
                 if (checkWin()) {
-                                JOptionPane.showMessageDialog(this, finish, "", JOptionPane.INFORMATION_MESSAGE);
+                                JOptionPane.showMessageDialog(this, finish, "Fin del juego", JOptionPane.INFORMATION_MESSAGE);
                     break;
                 }
             }
@@ -507,6 +748,21 @@ public class TicTacToePanel extends javax.swing.JPanel {
                 long start = System.nanoTime();
                 AlphaBetaSearch.alphaBetaSearch(1);
                 long end = System.nanoTime() - start;
+                
+
+
+                                double timeAlpha = 0;
+               double statetimeAlpha = 0; 
+               double statesAlpha = 0;
+               statesAlpha = source.Map.visitedStates;
+               timeAlpha =  (end / 1_000d);
+              statetimeAlpha = ((end / 1_000d) / source.Map.visitedStates);
+
+              this.timeAlpha.add(i, timeAlpha);
+              this.statesAlpha.add(i, statesAlpha);
+              timeStateAlpha.add(i, statetimeAlpha);
+  
+               
                 String textAlpha ="Posicion movimiento: "+ (source.Map.returnMove + 1) + "\n";
                   textAlpha = textAlpha +"Tiempo:  microsec = " +  end / 1_000d+"\n" ;
                     textAlpha = textAlpha +"estados visitados: "+ source.Map.visitedStates+ "\n";
@@ -580,20 +836,26 @@ public class TicTacToePanel extends javax.swing.JPanel {
            JOptionPane.showMessageDialog(this, "Error al capturar numero: "+e, "Error",JOptionPane.ERROR_MESSAGE );
            }
        }
+static int empate =0;
+static int gPlayer =0;
+static int gComputer =0;
 
     private static boolean checkWin() {
         switch (source.Map.utility(source.Map.map)) {
             case 0:
                 System.out.println("Game done!\nDraw!");
              finish ="Juego Terminado \n EMPATE!";
+            empate++;
                 return true;
             case 1:
                 System.out.println("Game done!\nYour opponent wins!");
                         finish = "Juego Terminado \n COMPUTADORA GANA!";
+                        gComputer++;
                 return true;
             case -1:
                 System.out.println("Game done!\nYou win!");
                         finish ="Juego Terminado \n HAS GANADO!";
+                        gPlayer++;
                 return true;
         }
 
@@ -711,7 +973,11 @@ switch(posicion){
     private javax.swing.JButton btn8;
     private javax.swing.JButton btn9;
     private javax.swing.JButton btnClean;
+    private javax.swing.JButton btnEstados;
     private javax.swing.JButton btnPlay;
+    private javax.swing.JButton btnStadistics;
+    private javax.swing.JButton btnTiempo;
+    private javax.swing.JButton btnTiempoEstados;
     private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
