@@ -27,10 +27,8 @@ public class AlphaBetaSearch {
         if (result != 100) {
             return result;
         }
-
         Map.visitedStates++;
         int value = Integer.MIN_VALUE;
-
         // Calculate available moves and execute when found
         for (int position = 0; position < 9; position++) {
             if ((map & (1 << position + 9)) != (1 << position + 9) && (map & (1 << position)) != (1 << position)) {
@@ -39,7 +37,6 @@ public class AlphaBetaSearch {
                 if (value >= beta) {
                     return value;
                 }
-
                 alpha = Math.max(alpha, value);
             }
         }
@@ -69,7 +66,6 @@ public class AlphaBetaSearch {
                 beta = Math.min(beta, value);
             }
         }
-
         return value;
     }
 }

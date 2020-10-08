@@ -63,8 +63,7 @@ public class AStarThread extends Observable implements Runnable{
         notifyObservers();
     }
     
-    private final void calculate()
-    {
+    private final void calculate(){
         //número de operaciones
         int count = 0;
         
@@ -125,7 +124,6 @@ public class AStarThread extends Observable implements Runnable{
     
     /**
      * Llena el camino con el número 3 en la cuadrícula
-
      */
     private void fillWay(Point point)
     {
