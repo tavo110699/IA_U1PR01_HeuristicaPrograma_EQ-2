@@ -63,6 +63,7 @@ public class aStarPanel extends javax.swing.JPanel implements Observer {
         jLabel3 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         obstacleRB = new javax.swing.JRadioButton();
+        btnSetObstacle = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         delayTextField = new javax.swing.JTextField();
@@ -87,7 +88,7 @@ public class aStarPanel extends javax.swing.JPanel implements Observer {
 
         txtObstacle.setText("10");
 
-        jLabel3.setText("obstaculos Aleatorios");
+        jLabel3.setText("Aleatorios");
 
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Ingresa Manual"));
@@ -120,6 +121,18 @@ public class aStarPanel extends javax.swing.JPanel implements Observer {
                     .addContainerGap(12, Short.MAX_VALUE)))
         );
 
+        btnSetObstacle.setText("Ingresar");
+        btnSetObstacle.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                btnSetObstacleMousePressed(evt);
+            }
+        });
+        btnSetObstacle.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSetObstacleActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -132,7 +145,8 @@ public class aStarPanel extends javax.swing.JPanel implements Observer {
                         .addComponent(jLabel3)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(txtObstacle, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnSetObstacle)))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
@@ -140,7 +154,8 @@ public class aStarPanel extends javax.swing.JPanel implements Observer {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtObstacle, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel3))
+                    .addComponent(jLabel3)
+                    .addComponent(btnSetObstacle))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -280,7 +295,7 @@ public class aStarPanel extends javax.swing.JPanel implements Observer {
                 .addComponent(panelContainer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
     }// </editor-fold>//GEN-END:initComponents
-
+int rows = 0;
     private void generateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateButtonActionPerformed
         try {
             String rowsTF = (String) JOptionPane.showInputDialog(
@@ -291,7 +306,7 @@ public class aStarPanel extends javax.swing.JPanel implements Observer {
                     null,
                     null,
                     "");
-            int rows = Integer.parseInt(rowsTF);
+            rows = Integer.parseInt(rowsTF);
             if (rows >= 5 && rows <= 30) {
 
                 fillPanelContainer(rows);
@@ -307,45 +322,6 @@ public class aStarPanel extends javax.swing.JPanel implements Observer {
                 Point positionMeta = new Point(labelMeta.getPX(), labelMeta.getPY());
                 meta = positionMeta;
                 labelArray[meta.x][meta.y].setBackground(Color.BLUE);
-
-                // OBSTACLE
-                int size = Integer.parseInt(txtObstacle.getText());
-                int[] vectorX = new int[size];
-                int[] vectorY = new int[size];
-                for (int i = 0; i < size; i++) {
-                    vectorX[i] = new Random().nextInt(rows - 1);
-                    vectorY[i] = new Random().nextInt(rows - 1);
-
-                }
-                gridArray = new int[rows][rows];
-                for (int i = 0; i < size; i++) {
-                    if (vectorX[i] == 9 && vectorY[i] == 9) {
-                        if (vectorX[i] == 0 && vectorY[i] == 0) {
-                            System.out.println("Ocurrio un errir en obstaculos");
-                        }
-                    } else {
-                        MyLabel labelObstacle = new MyLabel(vectorX[i], vectorY[i]);
-                        Point positionObstacle = new Point(labelMeta.getPX(), labelMeta.getPY());
-                        Obstacle = positionObstacle;
-                        // labelArray[Obstacle.x][Obstacle.y].setBackground(Color.RED);
-                        //   labelObstacle.setBackground(Color.red);
-                        //  gridArray[Obstacle.x][Obstacle.y] = 5;
-
-                        if (((start != null && (start.x != positionObstacle.x || start.y != positionObstacle.y)) || start == null)
-                                && (meta != null && (meta.x != positionObstacle.x || meta.y != positionObstacle.y)) || meta == null) {
-                            if (gridArray[positionObstacle.x][positionObstacle.y] != 5) {
-                                labelObstacle.setBackground(Color.red);
-                                gridArray[positionObstacle.x][positionObstacle.y] = 5;
-    
-                            } else {
-                                labelObstacle.setBackground(Color.white);
-                                gridArray[positionObstacle.x][positionObstacle.y] = 0;
-                            }
-                        }
-
-                    }
-
-                }
 
             }
         } catch (Exception e) {
@@ -419,6 +395,51 @@ public class aStarPanel extends javax.swing.JPanel implements Observer {
     private void obstacleRBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_obstacleRBActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_obstacleRBActionPerformed
+
+    private void btnSetObstacleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSetObstacleActionPerformed
+        // TODO add your handling code here:
+
+
+    }//GEN-LAST:event_btnSetObstacleActionPerformed
+
+    private void btnSetObstacleMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnSetObstacleMousePressed
+        // TODO add your handling code here:
+
+        if (rows == 0) {
+            JOptionPane.showMessageDialog(this, "Panel No generado", "Pulsa el boton generar grid, para poder ingresar los obstaculos", JOptionPane.ERROR_MESSAGE);
+        } else {
+            int size = Integer.parseInt(txtObstacle.getText());
+            int[] vectorX = new int[size];
+            int[] vectorY = new int[size];
+            
+            for (int i = 0; i < size; i++) {
+                 vectorX[i] = new Random().nextInt(rows - 1);
+                vectorY[i] = new Random().nextInt(rows - 1);
+                
+            }
+
+            
+            for (int i = 0; i < size; i++) {
+                MyLabel label = new MyLabel(vectorX[i], vectorY[i]);
+                Point position = new Point(label.getPX(), label.getPY());
+          
+                if (((start != null && (start.x != position.x || start.y != position.y)) || start == null)
+                        && (meta != null && (meta.x != position.x || meta.y != position.y)) || meta == null) {
+                    if (gridArray[position.x][position.y] != 5) {
+                                    Obstacle = position;
+                labelArray[Obstacle.x][Obstacle.y].setBackground(Color.RED);
+               //         label.setBackground(Color.red);
+                        gridArray[vectorX[i]][vectorY[i]] = 5;
+
+                    } else {
+                        label.setBackground(Color.white);
+                        gridArray[position.x][position.y] = 0;
+                    }
+                }
+            }
+
+        }
+    }//GEN-LAST:event_btnSetObstacleMousePressed
 
     /**
      * Generowanie tablicy
@@ -515,6 +536,7 @@ public class aStarPanel extends javax.swing.JPanel implements Observer {
         }
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnSetObstacle;
     private javax.swing.JButton clearButton;
     private javax.swing.JTextField delayTextField;
     private javax.swing.JButton generateButton;
